@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <!-- Приветственный блок -->
+    <div class="row mb-5">
+        <div class="col-lg-8 mx-auto text-center">
+            <h1 class="display-5 fw-bold">Добро пожаловать в умную библиотеку!</h1>
+            <p class="lead mb-4">
+                Это демо-проект для обучения FullStack разработке. Здесь можно управлять книгами, 
+                а ИИ-рекомендатор подберёт книгу по вашему настроению.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="#add-book" class="btn btn-primary btn-lg">➕ Добавить книгу</a>
+                <a href="#recommender" class="btn btn-outline-primary btn-lg">🤖 Попробовать рекомендатор</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Секция: Умный рекомендатель (теперь с якорём #recommender) -->
+    <div class="card shadow-lg mb-5 border-primary" id="recommender">
+        <div class="card-body">
+            <h2 class="card-title text-primary mb-4">🤖 Умный рекомендатель книг</h2>
+            <p class="card-text">Опишите ваше настроение или что вы хотите почитать, а система подберёт книгу.</p>
+            
+            <form action="/recommend" method="POST" class="row g-2 align-items-end">
+                <div class="col-md-9">
+                    <label for="user_query" class="form-label">Ваш запрос</label>
+                    <input type="text" class="form-control form-control-lg" id="user_query" name="user_query"
+                           value="{{ user_query if user_query else '' }}"
+                           placeholder="Например: 'мне грустно', 'хочу приключений', 'ищу мотивацию'">
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary btn-lg w-100">Подобрать книгу</button>
+                </div>
+            </form>
+
+            <!-- Результат рекомендации -->
+            {% if recommended_book %}
+            <div class="alert alert-success mt-4 animate__animated animate__fadeIn" role="alert">
+                <h4 class="alert-heading">📖 Для вас подобрана книга:</h4>
+                <hr>
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h3 class="mb-2">"{{ recommended_book.title }}"</h3>
+                        <p class="mb-1"><strong>Автор:</strong> {{ recommended_book.author }}</p>
+                        <p class="mb-2"><strong>Ключевые теги:</strong> 
+                            {% for tag in recommended_book.tags %}
+                                <span class="badge bg-secondary me-1">{{ tag }}</span>
+                            {% endfor %}
+                        </p>
+                        <p class="mb-0"><small>На основе вашего запроса: "<em>{{ user_query }}</em>"</small></p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <button class="btn btn-outline-success" onclick="addToFavorites({{ recommended_book.id }})">
+                            ♥ Добавить в избранное
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% elif user_query and user_query|length > 0 %}
+            <div class="alert alert-warning mt-4" role="alert">
+                По запросу "<strong>{{ user_query }}</strong>" не найдено точных совпадений. 
+                Попробуйте другие слова или добавьте больше книг в библиотеку!
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Секция: Добавление новой книги (теперь с якорём #add-book) -->
+    <div class="card shadow-sm mb-5" id="add-book">
+        <div class="card-body">
+            <h2 class="card-title mb-4">➕ Добавить новую книгу</h2>
+            <form action="/" method="POST">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="title" class="form-label">Название книги *</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="author" class="form-label">Автор *</label>
+                        <input type="text" class="form-control" id="author" name="author" required>
+                    </div>
+                    <div class="col-md-12">
+                        <label for="tags" class="form-label">Теги (через запятую)</label>
+                        <input type="text" class="form-control" id="tags" name="tags" 
+                               placeholder="приключения, мотивация, классика">
+                        <div class="form-text">Укажите ключевые слова, чтобы ИИ мог рекомендовать эту книгу.</div>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary px-4">Добавить в библиотеку</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Секция: Все книги в библиотеке -->
+    <div class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>📚 Все книги в библиотеке</h2>
+            <span class="badge bg-primary rounded-pill p-2">{{ books|length }} книг</span>
+        </div>
+        
+        {% if books %}
+        <div class="row">
+            {% for book in books %}
+            <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+                <div class="card book-card h-100 shadow-sm">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ book.title }}</h5>
+                        <h6 class="card-subtitle mb-3 text-muted">{{ book.author }}</h6>
+                        
+                        {% if book.tags %}
+                        <div class="mt-auto">
+                            <p class="card-text">
+                                {% for tag in book.tags %}
+                                    <span class="badge bg-light text-dark border me-1 mb-1">{{ tag }}</span>
+                                {% endfor %}
+                            </p>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mt-3 pt-3 border-top">
+                            <small class="text-muted">ID: {{ book.id }}</small>
+                            <button class="btn btn-sm btn-outline-danger float-end" 
+                                    onclick="deleteBook({{ book.id }})">Удалить</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <h4 class="text-muted">📭 Библиотека пуста</h4>
+            <p class="text-muted">Добавьте первую книгу, используя форму выше!</p>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Простые функции-заглушки для демонстрации
+function addToFavorites(bookId) {
+    alert('Книга ID ' + bookId + ' добавлена в избранное!');
+}
+
+function deleteBook(bookId) {
+    if (confirm('Удалить книгу ID ' + bookId + '?')) {
+        alert('Книга ID ' + bookId + ' удалена (в демо это только заглушка)');
+    }
+}
+</script>
+{% endblock %}
