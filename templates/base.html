@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Умная библиотека{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding-top: 70px; background-color: #f8f9fa; }
+        .book-card { margin-bottom: 15px; transition: transform 0.2s; }
+        .book-card:hover { transform: translateY(-3px); }
+        .footer { margin-top: 40px; padding: 20px 0; background-color: #e9ecef; }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Навигационная панель -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <strong>🤖 Умная библиотека</strong> <small class="text-light">(AI-powered)</small>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/library">📚 Все книги</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/#recommender" onclick="document.getElementById('user_query').focus()">
+                            🔍 Рекомендатель
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/docs" target="_blank">⚙️ API Документация</a>
+                    </li>
+                    <li class="nav-item">
+                        <span class="nav-link text-light">
+                            Книг в базе: <span class="badge bg-light text-primary">{{ books|length if books else 0 }}</span>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Основное содержимое страницы -->
+    <main class="container mt-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Подвал -->
+    <footer class="footer text-center">
+        <div class="container">
+            <p class="mb-0">
+                <small>
+                    Учебный проект • FastAPI + SQLModel + AI • 
+                    <a href="https://github.com/ваш-аккаунт" class="text-decoration-none">GitHub</a>
+                </small>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
